@@ -1,9 +1,9 @@
 # Change Log
 
-All notable changes to the "duplicated-code" extension will be documented in this file.
+## 0.0.1
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [Unreleased]
-
-- Initial release
+- update jscpd & usage
+- fix not working with mac ARM
+- change config name to `duplicatedCode`
+- make jscpd options configurable
+- use decorations api which is auto cleared on file close, instead of making a selection of the range

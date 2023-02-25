@@ -1,84 +1,77 @@
+import { IClone, IMapFrame, IOptions, MemoryStore } from '@jscpd/core';
+import { detectClones } from 'jscpd';
 import * as vscode from 'vscode';
-import { IClone, JSCPD, getStoreManager } from 'jscpd';
+import * as util from './util';
 
 import { DuplicatedCode } from './duplicated-code';
 import { DuplicatedCodeType } from './duplicated-code-type.enum';
 
 export class DuplicatedCodeProvider implements vscode.TreeDataProvider<DuplicatedCode> {
-  public _onDidChangeTreeData: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
-  public onDidChangeTreeData: vscode.Event<void> = this._onDidChangeTreeData.event;
+    public _onDidChangeTreeData: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
+    public onDidChangeTreeData: vscode.Event<void> = this._onDidChangeTreeData.event;
 
-  private clones: IClone[] = [];
+    private clones: IClone[] = [];
 
-  constructor(private workspaceFolders: readonly vscode.WorkspaceFolder[] | undefined) {}
+    constructor(private workspaceFolders: readonly vscode.WorkspaceFolder[] | undefined) { }
 
-  getTreeItem(element: DuplicatedCode): vscode.TreeItem | Thenable<vscode.TreeItem> {
-    return element;
-  }
-
-  getChildren(element?: DuplicatedCode | undefined): vscode.ProviderResult<DuplicatedCode[]> {
-    if (!this.workspaceFolders || this.workspaceFolders.length === 0) {
-      vscode.window.showInformationMessage('Empty workspace');
-      return Promise.resolve([]);
+    getTreeItem(element: DuplicatedCode): vscode.TreeItem | Thenable<vscode.TreeItem> {
+        return element;
     }
 
-    let exclude: string[] | undefined = vscode.workspace.getConfiguration('duplicated-code').get('exclude');
+    getChildren(element?: DuplicatedCode | undefined): vscode.ProviderResult<DuplicatedCode[]> {
+        if (!this.workspaceFolders || this.workspaceFolders.length === 0) {
+            vscode.window.showInformationMessage('Empty workspace');
 
-    if (!exclude) {
-      exclude = ['**/node_modules/**', '**/coverage/**', '**/dist/**', '**/build/**'];
+            return Promise.resolve([]);
+        }
+
+        if (!element) {
+            return this.workspaceFolders.map(
+                (workspace) =>
+                    new DuplicatedCode(
+                        -1,
+                        undefined,
+                        DuplicatedCodeType.workspace,
+                        workspace,
+                        this.workspaceFolders?.length === 1 ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.Collapsed,
+                    ),
+            );
+        } else if (element.type === DuplicatedCodeType.workspace) {
+            const options: IOptions = Object.assign({}, util.config.options, {
+                path   : [`${element.workspaceFolder?.uri.path!}/`],
+                ignore : util.config.exclude,
+                output : undefined,
+            });
+
+            return detectClones(options, new MemoryStore<IMapFrame>())
+                .then((clones: IClone[]) => {
+                    this.clones = clones;
+
+                    return clones.map(
+                        (clone, index) => new DuplicatedCode(
+                            index,
+                            clone,
+                            DuplicatedCodeType.line,
+                            undefined,
+                            vscode.TreeItemCollapsibleState.Collapsed,
+                        ),
+                    );
+                })
+                .catch((error) => {
+                    console.error(error);
+
+                    return [];
+                });
+        } else {
+            return [
+                new DuplicatedCode(
+                    -1,
+                    this.clones[element.index],
+                    DuplicatedCodeType.detail,
+                    undefined,
+                    vscode.TreeItemCollapsibleState.None,
+                ),
+            ];
+        }
     }
-
-    if (!element) {
-      return this.workspaceFolders.map(
-        (workspace) =>
-          new DuplicatedCode(
-            -1,
-            undefined,
-            DuplicatedCodeType.workspace,
-            workspace,
-            this.workspaceFolders?.length === 1 ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.Collapsed
-          )
-      );
-    } else if (element.type === DuplicatedCodeType.workspace) {
-      const path = `${element.workspaceFolder?.uri.path!}/`;
-
-      const cpd = new JSCPD({
-        noSymlinks: true,
-        storeOptions: {
-          '*': {
-            type: 'memory',
-            options: {
-              name: 'memory',
-              persist: false,
-            },
-          },
-        },
-        absolute: false,
-        path: [path],
-        ignore: exclude,
-        gitignore: true,
-        silent: true,
-        debug: false,
-        output: undefined,
-      });
-
-      return cpd
-        .detectInFiles([path])
-        .then((clones: IClone[]) => {
-          this.clones = clones;
-
-          getStoreManager().close();
-
-          return clones.map(
-            (clone, index) => new DuplicatedCode(index, clone, DuplicatedCodeType.line, undefined, vscode.TreeItemCollapsibleState.Collapsed)
-          );
-        })
-        .catch((error) => {
-          console.log(error);
-          return [];
-        });
-    } else {
-      return [new DuplicatedCode(-1, this.clones[element.index], DuplicatedCodeType.detail, undefined, vscode.TreeItemCollapsibleState.None)];
-    }
-  }
 }
