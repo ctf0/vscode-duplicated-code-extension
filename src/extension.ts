@@ -12,12 +12,8 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.window.registerTreeDataProvider(util.PKG_NAME, duplicatedCodeProvider),
-        vscode.commands.registerCommand('duplicatedCode.refreshEntry', () => {
-            duplicatedCodeProvider._onDidChangeTreeData.fire();
-        }),
-        vscode.commands.registerCommand('duplicatedCode.openFile', (duplicateCode: DuplicatedCode) => {
-            duplicateCode.openFile();
-        }),
+        vscode.commands.registerCommand('duplicatedCode.refreshEntry', () => duplicatedCodeProvider._onDidChangeTreeData.fire()),
+        vscode.commands.registerCommand('duplicatedCode.openFile', (duplicateCode: DuplicatedCode) => duplicateCode.openFile()),
         vscode.workspace.onDidChangeConfiguration((event) => {
             if (event.affectsConfiguration(util.PKG_NAME)) {
                 util.readConfig();

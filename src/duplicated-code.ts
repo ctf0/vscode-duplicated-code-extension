@@ -44,7 +44,7 @@ export class DuplicatedCode extends vscode.TreeItem {
             this.label = filename;
             this.description = description;
 
-            this.title = `${filenameA} - ${filenameB}`;
+            this.title = filenameA !== filenameB ? `${filenameA} - ${filenameB}` : filenameA;
 
             this.command = {
                 title     : 'Open diff',
@@ -68,14 +68,14 @@ export class DuplicatedCode extends vscode.TreeItem {
     }
 
     // @ts-ignore
-    public async openFile(): void {
-        const blockDecorationType = util.blockDecorationType;
-
+    public openFile() {
         if (this.clone) {
-            const openAs = util.config.openFilesAs;
+            if (util.config.openFilesAs === 'diff') {
+                if (util.config.autoChangeViewType && (this.fileuri1!.path === this.fileuri2!.path)) {
+                    return this.openNormal();
+                }
 
-            if (openAs == 'diff') {
-                await vscode.commands.executeCommand(
+                return vscode.commands.executeCommand(
                     'vscode.diff',
                     this.fileuri1,
                     this.fileuri2,
@@ -86,53 +86,58 @@ export class DuplicatedCode extends vscode.TreeItem {
                 );
             }
 
-            if (openAs == 'normal') {
-                // 1st editor
-                const editor1 = await vscode.window.showTextDocument(
-                    await vscode.workspace.openTextDocument(this.fileuri1!),
-                    { viewColumn: vscode.ViewColumn.One },
+            return this.openNormal();
+        }
+    }
+
+    private async openNormal(): Promise<void> {
+        const revealTimeout = 150;
+        const blockDecorationType = util.blockDecorationType;
+
+        // 1st editor
+        const editor1 = await vscode.window.showTextDocument(
+            await vscode.workspace.openTextDocument(this.fileuri1!),
+            { viewColumn: vscode.ViewColumn.One },
+        );
+
+        if (this.counter === 0) {
+            editor1.setDecorations(blockDecorationType, [{
+                range        : this.range1!,
+                hoverMessage : `${util.PKG_TITLE} : ${this.title}`,
+            }]);
+        }
+
+        setTimeout(async () => {
+            editor1.revealRange(this.range1!, vscode.TextEditorRevealType.AtTop);
+
+            // 2nd editor
+            setTimeout(async () => {
+                const editor2 = await vscode.window.showTextDocument(
+                    await vscode.workspace.openTextDocument(this.fileuri2!),
+                    { viewColumn: vscode.ViewColumn.Two },
                 );
 
                 if (this.counter === 0) {
-                    editor1.setDecorations(blockDecorationType, [{
-                        range        : this.range1!,
+                    editor2.setDecorations(blockDecorationType, [{
+                        range        : this.range2!,
                         hoverMessage : `${util.PKG_TITLE} : ${this.title}`,
                     }]);
                 }
 
-                setTimeout(async () => {
-                    editor1.revealRange(this.range1!, vscode.TextEditorRevealType.AtTop);
+                setTimeout(() => {
+                    editor2.revealRange(this.range2!, vscode.TextEditorRevealType.AtTop);
 
-                    // 2nd editor
-                    setTimeout(async () => {
-                        const editor2 = await vscode.window.showTextDocument(
-                            await vscode.workspace.openTextDocument(this.fileuri2!),
-                            { viewColumn: vscode.ViewColumn.Two },
-                        );
-
+                    // make sure scroll is synced
+                    setTimeout(() => {
                         if (this.counter === 0) {
-                            editor2.setDecorations(blockDecorationType, [{
-                                range        : this.range2!,
-                                hoverMessage : `${util.PKG_TITLE} : ${this.title}`,
-                            }]);
+                            this.counter++;
+                            this.openFile();
+                        } else {
+                            this.counter--;
                         }
-
-                        setTimeout(() => {
-                            editor2.revealRange(this.range2!, vscode.TextEditorRevealType.AtTop);
-
-                            // make sure scroll is synced
-                            setTimeout(() => {
-                                if (this.counter === 0) {
-                                    this.counter++;
-                                    this.openFile();
-                                } else {
-                                    this.counter--;
-                                }
-                            }, 50);
-                        }, 150);
-                    }, 250);
-                }, 150);
-            }
-        }
+                    }, 50);
+                }, revealTimeout);
+            }, 250);
+        }, revealTimeout);
     }
 }

@@ -2,7 +2,7 @@
     "name": "duplicated-code-new",
     "displayName": "Duplicated code (jscpd)",
     "description": "Find duplicated lines in your code using jscpd",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "publisher": "ctf0",
     "repository": "https://github.com/ctf0/vscode-duplicated-code-extension",
     "engines": {
@@ -43,10 +43,6 @@
                     "light": "resources/refresh.svg",
                     "dark": "resources/refresh.svg"
                 }
-            },
-            {
-                "command": "duplicatedCode.openFile",
-                "title": "Open"
             }
         ],
         "menus": {
@@ -103,6 +99,11 @@
                         "open the clones in normal view while highlighting the similar blocks"
                     ],
                     "description": "chose how to view files with duplicatedCode"
+                },
+                "duplicatedCode.autoChangeViewType": {
+                    "type": "boolean",
+                    "default": "false",
+                    "markdownDescription": "use `normal view` when viewing same file clones & `#duplicatedCode.openFilesAs#` is `diff`"
                 },
                 "duplicatedCode.decorationStyles": {
                     "type": "object",
