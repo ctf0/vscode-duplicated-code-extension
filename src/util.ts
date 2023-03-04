@@ -12,6 +12,10 @@ export function readConfig() {
 }
 
 export function createDecorationType() {
+    if (blockDecorationType) {
+        blockDecorationType.dispose();
+    }
+
     blockDecorationType = vscode.window.createTextEditorDecorationType(
         Object.assign({}, util.config.decorationStyles, {
             overviewRulerLane: vscode.OverviewRulerLane.Right,

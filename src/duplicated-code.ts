@@ -1,8 +1,7 @@
-import * as vscode from 'vscode';
-import * as util from './util';
-
 import { IClone } from '@jscpd/core';
+import * as vscode from 'vscode';
 import { DuplicatedCodeType } from './duplicated-code-type.enum';
+import * as util from './util';
 
 export class DuplicatedCode extends vscode.TreeItem {
     public title?: string;
@@ -68,26 +67,30 @@ export class DuplicatedCode extends vscode.TreeItem {
     }
 
     // @ts-ignore
-    public openFile() {
+    async public openFile() {
         if (this.clone) {
             if (util.config.openFilesAs === 'diff') {
                 if (util.config.autoChangeViewType && (this.fileuri1!.path === this.fileuri2!.path)) {
                     return this.openNormal();
                 }
 
-                return vscode.commands.executeCommand(
-                    'vscode.diff',
-                    this.fileuri1,
-                    this.fileuri2,
-                    this.title,
-                    {
-                        viewColumn: vscode.ViewColumn.One,
-                    },
-                );
+                return this.openDiff();
             }
 
             return this.openNormal();
         }
+    }
+
+    private openDiff(): Thenable<unknown> {
+        return vscode.commands.executeCommand(
+            'vscode.diff',
+            this.fileuri1,
+            this.fileuri2,
+            this.title,
+            {
+                viewColumn: vscode.ViewColumn.One,
+            },
+        );
     }
 
     private async openNormal(): Promise<void> {
@@ -128,10 +131,10 @@ export class DuplicatedCode extends vscode.TreeItem {
                     editor2.revealRange(this.range2!, vscode.TextEditorRevealType.AtTop);
 
                     // make sure scroll is synced
-                    setTimeout(() => {
+                    setTimeout(async () => {
                         if (this.counter === 0) {
                             this.counter++;
-                            this.openFile();
+                            await this.openFile();
                         } else {
                             this.counter--;
                         }

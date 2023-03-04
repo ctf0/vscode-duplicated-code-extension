@@ -1,10 +1,9 @@
 import { IClone, IMapFrame, IOptions, MemoryStore } from '@jscpd/core';
 import { detectClones } from 'jscpd';
 import * as vscode from 'vscode';
-import * as util from './util';
-
 import { DuplicatedCode } from './duplicated-code';
 import { DuplicatedCodeType } from './duplicated-code-type.enum';
+import * as util from './util';
 
 export class DuplicatedCodeProvider implements vscode.TreeDataProvider<DuplicatedCode> {
     public _onDidChangeTreeData: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
@@ -38,9 +37,9 @@ export class DuplicatedCodeProvider implements vscode.TreeDataProvider<Duplicate
             );
         } else if (element.type === DuplicatedCodeType.workspace) {
             const options: IOptions = Object.assign({}, util.config.options, {
-                path   : [`${element.workspaceFolder?.uri.path!}/`],
-                ignore : util.config.exclude,
-                output : undefined,
+                path: [`${element.workspaceFolder?.uri.path!}/`],
+                ignore: util.config.exclude,
+                output: undefined,
             });
 
             return detectClones(options, new MemoryStore<IMapFrame>())
