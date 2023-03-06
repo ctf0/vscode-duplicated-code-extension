@@ -37,9 +37,9 @@ export class DuplicatedCodeProvider implements vscode.TreeDataProvider<Duplicate
             );
         } else if (element.type === DuplicatedCodeType.workspace) {
             const options: IOptions = Object.assign({}, util.config.options, {
-                path: [`${element.workspaceFolder?.uri.path!}/`],
-                ignore: util.config.exclude,
-                output: undefined,
+                path   : [`${element.workspaceFolder?.uri.path!}/`],
+                ignore : util.config.exclude,
+                output : undefined,
             });
 
             return detectClones(options, new MemoryStore<IMapFrame>())
@@ -52,7 +52,7 @@ export class DuplicatedCodeProvider implements vscode.TreeDataProvider<Duplicate
                             clone,
                             DuplicatedCodeType.line,
                             undefined,
-                            vscode.TreeItemCollapsibleState.Collapsed,
+                            vscode.TreeItemCollapsibleState.None,
                         ),
                     );
                 })
@@ -72,5 +72,9 @@ export class DuplicatedCodeProvider implements vscode.TreeDataProvider<Duplicate
                 ),
             ];
         }
+    }
+
+    refresh(): void {
+        this._onDidChangeTreeData.fire(undefined);
     }
 }

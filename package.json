@@ -2,7 +2,7 @@
     "name": "duplicated-code-new",
     "displayName": "Duplicated code (jscpd)",
     "description": "Find duplicated lines in your code using jscpd",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "publisher": "ctf0",
     "repository": "https://github.com/ctf0/vscode-duplicated-code-extension",
     "engines": {
@@ -39,10 +39,7 @@
             {
                 "command": "duplicatedCode.refreshEntry",
                 "title": "Refresh",
-                "icon": {
-                    "light": "resources/refresh.svg",
-                    "dark": "resources/refresh.svg"
-                }
+                "icon": "$(refresh)"
             }
         ],
         "menus": {
@@ -51,6 +48,12 @@
                     "command": "duplicatedCode.refreshEntry",
                     "when": "view == duplicatedCode",
                     "group": "navigation"
+                }
+            ],
+            "commandPalette": [
+                {
+                    "command": "duplicatedCode.refreshEntry",
+                    "when": "false"
                 }
             ]
         },

@@ -27,7 +27,7 @@ export class DuplicatedCode extends vscode.TreeItem {
             const filenameA = util.getFileNameFromPath(clone.duplicationA.sourceId);
             const filenameB = util.getFileNameFromPath(clone.duplicationB.sourceId);
 
-            const filename = type === DuplicatedCodeType.line ? filenameA : filenameB;
+            const filename = filenameA == filenameB ? filenameA : `${filenameA} ∴ ${filenameB}`;
 
             const startA = `${clone.duplicationA.start.line}:${clone.duplicationA.start.column}`;
             const endA = `${clone.duplicationA.end.line}:${clone.duplicationA.end.column}`;
@@ -94,7 +94,7 @@ export class DuplicatedCode extends vscode.TreeItem {
     }
 
     private async openNormal(): Promise<void> {
-        const revealTimeout = 150;
+        const revealTimeout = 250;
         const blockDecorationType = util.blockDecorationType;
 
         // 1st editor
