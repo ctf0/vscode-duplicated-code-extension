@@ -46,15 +46,18 @@ export class DuplicatedCodeProvider implements vscode.TreeDataProvider<Duplicate
                 .then((clones: IClone[]) => {
                     this.clones = clones;
 
-                    return clones.map(
-                        (clone, index) => new DuplicatedCode(
-                            index,
-                            clone,
-                            DuplicatedCodeType.line,
-                            undefined,
-                            vscode.TreeItemCollapsibleState.None,
-                        ),
-                    );
+                    return clones
+                        .sort((a, b) => (a.duplicationA.sourceId == a.duplicationB.sourceId ? 1 : -1))
+                        .reverse()
+                        .map(
+                            (clone, index) => new DuplicatedCode(
+                                index,
+                                clone,
+                                DuplicatedCodeType.line,
+                                undefined,
+                                vscode.TreeItemCollapsibleState.None,
+                            ),
+                        );
                 })
                 .catch((error) => {
                     console.error(error);

@@ -24,16 +24,22 @@ export class DuplicatedCode extends vscode.TreeItem {
         if (type === DuplicatedCodeType.workspace) {
             this.label = workspaceFolder?.name;
         } else if (clone) {
-            const filenameA = util.getFileNameFromPath(clone.duplicationA.sourceId);
-            const filenameB = util.getFileNameFromPath(clone.duplicationB.sourceId);
+            const cloneA = clone.duplicationA;
+            const cloneB = clone.duplicationB;
 
-            const filename = filenameA == filenameB ? filenameA : `${filenameA} ∴ ${filenameB}`;
+            const fileAPath = cloneA.sourceId;
+            const fileBPath = cloneB.sourceId;
 
-            const startA = `${clone.duplicationA.start.line}:${clone.duplicationA.start.column}`;
-            const endA = `${clone.duplicationA.end.line}:${clone.duplicationA.end.column}`;
+            const filenameA = util.getFileNameFromPath(fileAPath);
+            const filenameB = util.getFileNameFromPath(fileBPath);
 
-            const startB = `${clone.duplicationB.start.line}:${clone.duplicationB.start.column}`;
-            const endB = `${clone.duplicationB.end.line}:${clone.duplicationB.end.column}`;
+            const filename = fileAPath == fileBPath ? filenameA : `${filenameA} ∴ ${filenameB}`;
+
+            const startA = `${cloneA.start.line}:${cloneA.start.column}`;
+            const endA = `${cloneA.end.line}:${cloneA.end.column}`;
+
+            const startB = `${cloneB.start.line}:${cloneB.start.column}`;
+            const endB = `${cloneB.end.line}:${cloneB.end.column}`;
 
             const start = type === DuplicatedCodeType.line ? startA : startB;
             const end = type === DuplicatedCodeType.line ? endA : endB;
@@ -43,7 +49,7 @@ export class DuplicatedCode extends vscode.TreeItem {
             this.label = filename;
             this.description = description;
 
-            this.title = filenameA !== filenameB ? `${filenameA} - ${filenameB}` : filenameA;
+            this.title = filename;
 
             this.command = {
                 title     : 'Open diff',
@@ -51,18 +57,20 @@ export class DuplicatedCode extends vscode.TreeItem {
                 arguments : [this],
             };
 
+            this.iconPath = fileAPath == fileBPath ? new vscode.ThemeIcon('eye') : new vscode.ThemeIcon('report');
+
             this.range1 = new vscode.Range(
-                new vscode.Position(clone.duplicationA.start.line - 1, (clone.duplicationA.start.column || 1) - 1),
-                new vscode.Position(clone.duplicationA.end.line - 1, (clone.duplicationA.end.column || 1) - 1),
+                new vscode.Position(cloneA.start.line - 1, (cloneA.start.column || 1) - 1),
+                new vscode.Position(cloneA.end.line - 1, (cloneA.end.column || 1) - 1),
             );
 
             this.range2 = new vscode.Range(
-                new vscode.Position(clone.duplicationB.start.line - 1, (clone.duplicationB.start.column || 1) - 1),
-                new vscode.Position(clone.duplicationB.end.line - 1, (clone.duplicationB.end.column || 1) - 1),
+                new vscode.Position(cloneB.start.line - 1, (cloneB.start.column || 1) - 1),
+                new vscode.Position(cloneB.end.line - 1, (cloneB.end.column || 1) - 1),
             );
 
-            this.fileuri1 = vscode.Uri.file(clone.duplicationA.sourceId);
-            this.fileuri2 = vscode.Uri.file(clone.duplicationB.sourceId);
+            this.fileuri1 = vscode.Uri.file(fileAPath);
+            this.fileuri2 = vscode.Uri.file(fileBPath);
         }
     }
 
