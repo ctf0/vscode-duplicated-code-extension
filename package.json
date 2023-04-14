@@ -2,7 +2,7 @@
     "name": "duplicated-code-new",
     "displayName": "Duplicated code detector (jscpd)",
     "description": "Find duplicated lines in your code using jscpd",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "publisher": "ctf0",
     "repository": "https://github.com/ctf0/vscode-duplicated-code-extension",
     "engines": {
@@ -132,12 +132,12 @@
         "watch": "npm run esbuild"
     },
     "devDependencies": {
-        "@types/node": "^18.15.0",
+        "@types/node": "^18.15.11",
         "@types/vscode": "^1.68.0",
-        "esbuild": "^0.17.11",
-        "typescript": "^4.9.5"
+        "esbuild": "^0.17.16",
+        "typescript": "^5.0.4"
     },
     "dependencies": {
-        "jscpd": "3.5.3"
+        "jscpd": "3.5.4"
     }
 }
