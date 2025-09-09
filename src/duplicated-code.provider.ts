@@ -1,27 +1,27 @@
-import { IClone, IMapFrame, IOptions, MemoryStore } from '@jscpd/core';
-import { detectClones } from 'jscpd';
-import * as vscode from 'vscode';
-import { DuplicatedCode } from './duplicated-code';
-import { DuplicatedCodeType } from './duplicated-code-type.enum';
-import * as util from './util';
+import {IClone, IMapFrame, IOptions, MemoryStore} from '@jscpd/core'
+import {detectClones} from 'jscpd'
+import * as vscode from 'vscode'
+import {DuplicatedCode} from './duplicated-code'
+import {DuplicatedCodeType} from './duplicated-code-type.enum'
+import * as util from './util'
 
 export class DuplicatedCodeProvider implements vscode.TreeDataProvider<DuplicatedCode> {
-    public _onDidChangeTreeData: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
-    public onDidChangeTreeData: vscode.Event<void> = this._onDidChangeTreeData.event;
+    public _onDidChangeTreeData : vscode.EventEmitter<void> = new vscode.EventEmitter<void>()
+    public onDidChangeTreeData  : vscode.Event<void> = this._onDidChangeTreeData.event
 
-    private clones: IClone[] = [];
+    private clones : IClone[] = []
 
     constructor(private workspaceFolders: readonly vscode.WorkspaceFolder[] | undefined) { }
 
     getTreeItem(element: DuplicatedCode): vscode.TreeItem | Thenable<vscode.TreeItem> {
-        return element;
+        return element
     }
 
     getChildren(element?: DuplicatedCode | undefined): vscode.ProviderResult<DuplicatedCode[]> {
         if (!this.workspaceFolders || this.workspaceFolders.length === 0) {
-            vscode.window.showInformationMessage('Empty workspace');
+            vscode.window.showInformationMessage('Empty workspace')
 
-            return Promise.resolve([]);
+            return Promise.resolve([])
         }
 
         if (!element) {
@@ -34,17 +34,24 @@ export class DuplicatedCodeProvider implements vscode.TreeDataProvider<Duplicate
                         workspace,
                         this.workspaceFolders?.length === 1 ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.Collapsed,
                     ),
-            );
+            )
         } else if (element.type === DuplicatedCodeType.workspace) {
+            const mainPath = `${element.workspaceFolder?.uri.path!}/`
+            const paths = [mainPath]
+
+            if (util.isWindows()) {
+                paths.push(mainPath.slice(1))
+            }
+
             const options: IOptions = Object.assign({}, util.config.options, {
-                path   : [`${element.workspaceFolder?.uri.path!}/`],
+                path   : paths,
                 ignore : util.config.exclude,
                 output : undefined,
-            });
+            })
 
             return detectClones(options, new MemoryStore<IMapFrame>())
                 .then((clones: IClone[]) => {
-                    this.clones = clones;
+                    this.clones = clones
 
                     return clones
                         .sort((a, b) => (a.duplicationA.sourceId == a.duplicationB.sourceId ? 1 : -1))
@@ -57,13 +64,13 @@ export class DuplicatedCodeProvider implements vscode.TreeDataProvider<Duplicate
                                 undefined,
                                 vscode.TreeItemCollapsibleState.None,
                             ),
-                        );
+                        )
                 })
                 .catch((error) => {
-                    console.error(error);
+                    console.error(error)
 
-                    return [];
-                });
+                    return []
+                })
         } else {
             return [
                 new DuplicatedCode(
@@ -73,11 +80,11 @@ export class DuplicatedCodeProvider implements vscode.TreeDataProvider<Duplicate
                     undefined,
                     vscode.TreeItemCollapsibleState.None,
                 ),
-            ];
+            ]
         }
     }
 
     refresh(): void {
-        this._onDidChangeTreeData.fire(undefined);
+        this._onDidChangeTreeData.fire(undefined)
     }
 }

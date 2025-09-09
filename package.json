@@ -1,68 +1,37 @@
 {
-    "name": "duplicated-code-new",
-    "displayName": "Duplicated code detector (jscpd)",
-    "description": "Find duplicated lines in your code using jscpd",
-    "version": "0.0.6",
-    "publisher": "ctf0",
-    "repository": "https://github.com/ctf0/vscode-duplicated-code-extension",
-    "engines": {
-        "vscode": "^1.68.0"
-    },
+    "activationEvents": [],
     "categories": [
         "Other"
     ],
-    "activationEvents": [
-        "onView:duplicatedCode"
-    ],
-    "main": "./out/main",
     "contributes": {
-        "viewsContainers": {
-            "activitybar": [
-                {
-                    "id": "package-explorer",
-                    "title": "Duplicated code",
-                    "icon": "resources/diff.svg"
-                }
-            ]
-        },
-        "views": {
-            "package-explorer": [
-                {
-                    "id": "duplicatedCode",
-                    "name": "Duplicated code",
-                    "icon": "resources/diff.svg",
-                    "contextualTitle": "Duplicated code"
-                }
-            ]
-        },
         "commands": [
             {
                 "command": "duplicatedCode.refreshEntry",
-                "title": "Refresh",
-                "icon": "$(refresh)"
+                "icon": "$(refresh)",
+                "title": "Refresh"
             }
         ],
-        "menus": {
-            "view/title": [
-                {
-                    "command": "duplicatedCode.refreshEntry",
-                    "when": "view == duplicatedCode",
-                    "group": "navigation"
-                }
-            ],
-            "commandPalette": [
-                {
-                    "command": "duplicatedCode.refreshEntry",
-                    "when": "false"
-                }
-            ]
-        },
         "configuration": {
-            "type": "object",
-            "title": "Duplicated Code",
             "properties": {
+                "duplicatedCode.autoChangeViewType": {
+                    "default": "false",
+                    "markdownDescription": "use `normal view` when viewing same file clones & `#duplicatedCode.openFilesAs#` is `diff`",
+                    "type": "boolean"
+                },
+                "duplicatedCode.decorationStyles": {
+                    "default": {
+                        "dark": {
+                            "backgroundColor": "#4e3e3e50"
+                        },
+                        "light": {
+                            "backgroundColor": "#ffffff50"
+                        },
+                        "overviewRulerColor": "#deaf9d"
+                    },
+                    "markdownDescription": "similar code blocks highlighting styles, requires `#duplicatedCode.openFilesAs#` to be `normal`",
+                    "type": "object"
+                },
                 "duplicatedCode.exclude": {
-                    "type": "array",
                     "default": [
                         "**/(node_modules|coverage|dist|build|vendor|storage|public|stubs|.git)/**",
                         "**/.*",
@@ -70,29 +39,17 @@
                         "**/*lock*",
                         "**/LICENSE"
                     ],
+                    "description": "Files/Folders glob to ignore",
                     "items": {
                         "type": "string"
                     },
                     "minItems": 1,
-                    "uniqueItems": true,
-                    "description": "Files/Folders glob to ignore"
-                },
-                "duplicatedCode.options": {
-                    "type": "object",
-                    "default": {
-                        "minTokens": 60,
-                        "minLines": 3,
-                        "maxLines": 1000,
-                        "absolute": true,
-                        "silent": true,
-                        "gitignore": true,
-                        "noSymlinks": false
-                    },
-                    "markdownDescription": "jscpd config options (not all options are supported), [jscpd-options](https://github.com/kucherenko/jscpd/tree/master/packages/jscpd#options)"
+                    "type": "array",
+                    "uniqueItems": true
                 },
                 "duplicatedCode.openFilesAs": {
-                    "type": "string",
                     "default": "diff",
+                    "description": "chose how to view files with duplicatedCode",
                     "enum": [
                         "diff",
                         "normal"
@@ -101,43 +58,84 @@
                         "open the clones in diff view",
                         "open the clones in normal view while highlighting the similar blocks"
                     ],
-                    "description": "chose how to view files with duplicatedCode"
+                    "type": "string"
                 },
-                "duplicatedCode.autoChangeViewType": {
-                    "type": "boolean",
-                    "default": "false",
-                    "markdownDescription": "use `normal view` when viewing same file clones & `#duplicatedCode.openFilesAs#` is `diff`"
-                },
-                "duplicatedCode.decorationStyles": {
-                    "type": "object",
+                "duplicatedCode.options": {
                     "default": {
-                        "overviewRulerColor": "#deaf9d",
-                        "light": {
-                            "backgroundColor": "#ffffff50"
-                        },
-                        "dark": {
-                            "backgroundColor": "#4e3e3e50"
-                        }
+                        "absolute": true,
+                        "gitignore": true,
+                        "maxLines": 1000,
+                        "minLines": 3,
+                        "minTokens": 60,
+                        "noSymlinks": false,
+                        "silent": true
                     },
-                    "markdownDescription": "similar code blocks highlighting styles, requires `#duplicatedCode.openFilesAs#` to be `normal`"
+                    "markdownDescription": "jscpd config options (not all options are supported), [jscpd-options](https://github.com/kucherenko/jscpd/tree/master/packages/jscpd#options)",
+                    "type": "object"
                 }
-            }
+            },
+            "title": "Duplicated Code",
+            "type": "object"
+        },
+        "menus": {
+            "commandPalette": [
+                {
+                    "command": "duplicatedCode.refreshEntry",
+                    "when": "false"
+                }
+            ],
+            "view/title": [
+                {
+                    "command": "duplicatedCode.refreshEntry",
+                    "group": "navigation",
+                    "when": "view == duplicatedCode"
+                }
+            ]
+        },
+        "views": {
+            "package-explorer": [
+                {
+                    "contextualTitle": "Duplicated code",
+                    "icon": "resources/diff.svg",
+                    "id": "duplicatedCode",
+                    "name": "Duplicated code"
+                }
+            ]
+        },
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "icon": "resources/diff.svg",
+                    "id": "package-explorer",
+                    "title": "Duplicated code"
+                }
+            ]
         }
     },
+    "dependencies": {
+        "jscpd": "3.5.10"
+    },
+    "description": "Find duplicated lines in your code using jscpd",
+    "devDependencies": {
+        "@types/node": "^24.3.1",
+        "@types/vscode": "^1.80.0",
+        "esbuild": "^0.25.9",
+        "typescript": "^5.9.2"
+    },
+    "displayName": "Duplicated code detector (jscpd)",
+    "engines": {
+        "vscode": "^1.80.0"
+    },
+    "main": "./out/main",
+    "name": "duplicated-code-new",
+    "publisher": "ctf0",
+    "repository": "https://github.com/ctf0/vscode-duplicated-code-extension",
     "scripts": {
-        "vscode:prepublish": "npm run esbuild-base -- --pure:console.log --minify",
-        "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
         "esbuild": "npm run esbuild-base -- --sourcemap",
+        "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
         "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
+        "vscode:prepublish": "npm run esbuild-base -- --pure:console.log --minify",
         "watch": "npm run esbuild"
     },
-    "devDependencies": {
-        "@types/node": "^18.15.11",
-        "@types/vscode": "^1.68.0",
-        "esbuild": "^0.17.16",
-        "typescript": "^5.0.4"
-    },
-    "dependencies": {
-        "jscpd": "3.5.4"
-    }
+    "version": "0.0.7"
 }
