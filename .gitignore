@@ -1,7 +1,6 @@
 out
-node_modules
-.vscode-test/
 .history
+node_modules
 *.vsix
 .DS_Store
 package-lock.json

@@ -113,18 +113,18 @@
         }
     },
     "dependencies": {
-        "jscpd": "3.5.10"
+        "jscpd": "5.0.14"
     },
     "description": "Find duplicated lines in your code using jscpd",
     "devDependencies": {
-        "@types/node": "^24.3.1",
-        "@types/vscode": "^1.80.0",
-        "esbuild": "^0.25.9",
-        "typescript": "^5.9.2"
+        "@types/node": "^26.1.2",
+        "@types/vscode": "^1.110.0",
+        "esbuild": "^0.28.1",
+        "typescript": "^7.0.2"
     },
     "displayName": "Duplicated code detector (jscpd)",
     "engines": {
-        "vscode": "^1.80.0"
+        "vscode": "^1.110.0"
     },
     "main": "./out/main",
     "name": "duplicated-code-new",
@@ -132,10 +132,10 @@
     "repository": "https://github.com/ctf0/vscode-duplicated-code-extension",
     "scripts": {
         "esbuild": "npm run esbuild-base -- --sourcemap",
-        "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
+        "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --external:jscpd --format=cjs --platform=node",
         "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
         "vscode:prepublish": "npm run esbuild-base -- --pure:console.log --minify",
         "watch": "npm run esbuild"
     },
-    "version": "0.0.7"
+    "version": "0.1.0"
 }

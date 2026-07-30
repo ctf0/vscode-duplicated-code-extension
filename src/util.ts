@@ -1,7 +1,5 @@
 import path from 'node:path'
-import os from 'os'
 import * as vscode from 'vscode'
-import * as util from './util'
 
 export let config: vscode.WorkspaceConfiguration
 export let blockDecorationType: vscode.TextEditorDecorationType
@@ -18,16 +16,12 @@ export function createDecorationType() {
     }
 
     blockDecorationType = vscode.window.createTextEditorDecorationType(
-        Object.assign({}, util.config.decorationStyles, {
+        Object.assign({}, config.decorationStyles, {
             overviewRulerLane : vscode.OverviewRulerLane.Right,
         }),
     )
 }
 
-export function getFileNameFromPath(filePath) {
+export function getFileNameFromPath(filePath: string): string {
     return path.parse(filePath).name
-}
-
-export function isWindows() {
-    return os.type() == 'Windows_NT'
 }

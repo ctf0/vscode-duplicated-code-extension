@@ -23,3 +23,8 @@
 - make same file clone at the top of the list
 - give different icons to same/cross file clones
 - fix wrong item title in treeview
+
+## 0.1.0
+
+- update jscpd to v5
+- support using the project `.jscpd.json` if found or fallback to extension config
