@@ -33,11 +33,20 @@
                 },
                 "duplicatedCode.exclude": {
                     "default": [
-                        "**/(node_modules|coverage|dist|build|vendor|storage|public|stubs|.git)/**",
-                        "**/.*",
-                        "**/_*",
-                        "**/*lock*",
-                        "**/LICENSE"
+                      "**/*.d",
+                      "**/*lock*",
+                      "**/build/**",
+                      "**/cache/**",
+                      "**/coverage/**",
+                      "**/dist/**",
+                      "**/docker/**",
+                      "**/LICENSE",
+                      "**/node_modules/**",
+                      "**/public/**",
+                      "**/storage/**",
+                      "**/stubs/**",
+                      "**/tests/**",
+                      "**/vendor/**"
                     ],
                     "description": "Files/Folders glob to ignore",
                     "items": {
@@ -63,14 +72,12 @@
                 "duplicatedCode.options": {
                     "default": {
                         "absolute": true,
-                        "gitignore": true,
                         "maxLines": 1000,
                         "minLines": 3,
                         "minTokens": 60,
-                        "noSymlinks": false,
                         "silent": true
                     },
-                    "markdownDescription": "jscpd config options (not all options are supported), [jscpd-options](https://github.com/kucherenko/jscpd/tree/master/packages/jscpd#options)",
+                    "markdownDescription": "jscpd config options, [jscpd-options](https://jscpd.dev/getting-started/configuration)",
                     "type": "object"
                 }
             },
@@ -137,5 +144,5 @@
         "vscode:prepublish": "npm run esbuild-base -- --pure:console.log --minify",
         "watch": "npm run esbuild"
     },
-    "version": "0.1.0"
+    "version": "0.1.1"
 }
